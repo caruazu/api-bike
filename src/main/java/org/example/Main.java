@@ -11,11 +11,12 @@ public class Main {
         session.beginTransaction();
 
         Usuario u = new Usuario();
-        u.setNome("AAAAAA");
+        u.setNome("BBBBB");
 
         session.save(u);
 
         session.getTransaction().commit();
         session.close();
+        factory.close();
     }
 }
