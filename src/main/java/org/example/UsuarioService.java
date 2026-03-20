@@ -10,9 +10,10 @@ public class UsuarioService {
         this.usuarioRepository = usuarioRepository;
     }
 
-    public String listUsuario(){
+    public List<String> listUsuario() {
         List<Usuario> usuarios = usuarioRepository.selectAll();
-
-        return usuarios.stream().map(Usuario::getNome).collect(Collectors.joining(" "));
+        return usuarios.stream()
+                .map(Usuario::getNome)
+                .collect(Collectors.toList());
     }
 }
