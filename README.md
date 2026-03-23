@@ -1,6 +1,6 @@
 # api-bike
 
-API Java para consulta de usuários, construída com **Jersey + Grizzly** na camada HTTP e **Hibernate** na camada de persistência.
+API Java para consulta de usuários, construída com **Jersey + tomcat** na camada HTTP e **Hibernate** na camada de persistência.
 
 O projeto expõe o endpoint `GET /usuarios`, consulta a tabela `usuario` no PostgreSQL e devolve os dados em formato JSON.
 
@@ -18,7 +18,7 @@ Este projeto implementa uma API simples com separação por camadas:
 - Java
 - Maven
 - Jersey (JAX-RS)
-- Grizzly HTTP Server
+- Tomcat 9
 - Hibernate ORM
 - PostgreSQL
 - Jackson para serialização JSON
@@ -29,11 +29,42 @@ Arquivo de exemplo:
 
 ```properties  
 # src/main/resources/hibernate.properties.example  
-  
+
 db.url=jdbc:postgresql://localhost:5432/bikes  
 db.user=postgres  
 db.password=postgres  
 ```  
+
+* o banco deve existir antes de subir a aplicação
+* a tabela `usuario` deve estar criada e populada
+
+## 9. Rodando pelo terminal
+
+Gerar o WAR:
+
+```bash
+mvn clean package
+```
+
+Saída esperada em `target/`.
+
+Exemplo:
+
+```text
+target/api-bike-1.0-SNAPSHOT.war
+```
+
+Para deploy manual no Tomcat:
+
+```bash
+cp target/api-bike-1.0-SNAPSHOT.war $CATALINA_HOME/webapps/
+```
+
+Depois suba o Tomcat:
+
+```bash
+$CATALINA_HOME/bin/startup.sh
+```
 
 
 ## Endpoint disponível
@@ -47,29 +78,27 @@ GET /usuarios
 Exemplo de chamada:
 
 ```bash  
-curl http://localhost:8080/usuarios
+curl http://localhost:8080/api-bike/usuarios
 ```  
 
 Exemplo de resposta esperada:
 
-```json  
+```json
 {  
-  "usuarios": ["Ana", "Bruno", "Carlos"]}  
+  "usuarios": ["Ana", "Bruno", "Carlos"]
+}  
 ```  
 
 ## Fluxo da requisição
 
-1. O servidor é iniciado por `Main`
-2. `Main` delega a inicialização para `ServerApp`
-3. `ServerApp` cria o servidor Grizzly com a configuração do Jersey definida em `AppConfig`
-4. `AppConfig` registra os recursos JAX-RS
-5. Uma requisição `GET /usuarios` chega em `UsuarioResource`
-6. `UsuarioResource` chama `UsuarioService`
-7. `UsuarioService` solicita os dados ao `UsuarioRepository`
-8. `UsuarioRepository` abre uma `Session` via `HibernateUtil`
-9. O Hibernate consulta a entidade `Usuario`
-10. O resultado é transformado em `UsuarioResponse`
-11. O Jackson serializa o DTO para JSON na resposta HTTP
+1. `AppConfig` registra os recursos JAX-RS
+2. Uma requisição `GET /usuarios` chega em `UsuarioResource`
+3. `UsuarioResource` chama `UsuarioService`
+4. `UsuarioService` solicita os dados ao `UsuarioRepository`
+5. `UsuarioRepository` abre uma `Session` via `HibernateUtil`
+6. O Hibernate consulta a entidade `Usuario`
+7. O resultado é transformado em `UsuarioResponse`
+8. O Jackson serializa o DTO para JSON na resposta HTTP
 
 ## Arquitetura
 
@@ -77,30 +106,16 @@ O diagrama abaixo mostra as relações principais entre as classes do projeto.
 
 
 ```mermaid
-flowchart TD
-    A[Cliente HTTP\nGET /usuarios] --> B[ServerApp / Grizzly]
-    B --> C[AppConfig / Jersey]
-    C --> D[UsuarioResource]
-    D --> E[UsuarioService]
-    E --> F[UsuarioRepository]
-    F --> G[HibernateUtil]
-    G --> H[(Banco de dados)]
-
-    H --> G
-    G --> F
-    F --> E
-    E --> D
-    D --> I[UsuarioResponse JSON]
-    I --> A
+flowchart TB
+    C["AppConfig / Jersey"] --> D["UsuarioResource"]
+    D --> E["UsuarioService"] & I["UsuarioResponse JSON"]
+    E <--> F["UsuarioRepository"]
+    F --> G["HibernateUtil"]
+    G <--> H[("Banco de dados")]
+    I --> A["Cliente HTTP\nGET /usuarios"]
 ```
 
 ## Responsabilidade de cada classe
-
-### `Main`
-Ponto de entrada da aplicação. Sobe o servidor e registra o shutdown hook.
-
-### `ServerApp`
-Inicializa e encerra o servidor HTTP com Grizzly.
 
 ### `AppConfig`
 Configura o Jersey, define os pacotes a serem escaneados e registra o suporte a JSON.
@@ -122,10 +137,3 @@ Entidade JPA/Hibernate mapeada para a tabela `usuario`.
 
 ### `UsuarioResponse`
 DTO usado para estruturar a resposta JSON do endpoint.
-
-## Observações importantes
-
-- O endpoint `/usuarios` depende da tabela `usuario` estar populada.
-- O projeto usa `hibernate.properties` para injetar credenciais sem fixá-las no código.
-- Em ambiente de produção, evite versionar credenciais reais no repositório.  
-  
