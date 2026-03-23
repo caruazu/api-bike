@@ -26,6 +26,38 @@
             <artifactId>hibernate-ehcache</artifactId>
             <version>5.6.15.Final</version>
         </dependency>
+
     </dependencies>
+
+    <build>
+        <plugins>
+
+            <!-- Compila o projeto Java -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <!-- Sintaxe Java usada no código -->
+                    <source>8</source>
+
+                    <!-- Bytecode gerado compatível com Java 8 -->
+                    <target>8</target>
+                </configuration>
+            </plugin>
+
+            <!-- Executa a classe Main via Maven -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <!-- Classe com public static void main -->
+                    <mainClass>org.example.Main</mainClass>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
 
 </project>
