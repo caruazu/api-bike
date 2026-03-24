@@ -5,7 +5,7 @@ import org.hibernate.Transaction;
 
 import java.util.List;
 
-public class UsuarioRepository {
+public class UsuarioDAO {
 
     public List<Usuario> selectAll(){
         try (Session session = HibernateUtil.getSessionFactory().openSession()){

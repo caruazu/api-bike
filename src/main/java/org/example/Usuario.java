@@ -1,11 +1,13 @@
 package org.example;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.DTO.UsuarioDadosCriacao;
 
 import javax.persistence.*;
 
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 
@@ -20,23 +22,7 @@ public class Usuario {
     @Column
     private String nome;
 
-    public Usuario(UsuarioDadosCriacao usuarioDadosCriacao) {
-        this.nome = usuarioDadosCriacao.getNome();
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
+    public Usuario(String nome) {
         this.nome = nome;
     }
 }
