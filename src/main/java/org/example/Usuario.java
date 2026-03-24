@@ -1,6 +1,13 @@
 package org.example;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import org.example.DTO.UsuarioDadosCriacao;
+
 import javax.persistence.*;
+
+@NoArgsConstructor
+@AllArgsConstructor
 
 @Entity
 @Table(name = "usuario")
@@ -13,7 +20,8 @@ public class Usuario {
     @Column
     private String nome;
 
-    public Usuario() {
+    public Usuario(UsuarioDadosCriacao usuarioDadosCriacao) {
+        this.nome = usuarioDadosCriacao.getNome();
     }
 
     public Long getId() {

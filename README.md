@@ -4,6 +4,8 @@ API Java para consulta de usuários, construída com **Jersey + tomcat** na cama
 
 O projeto expõe o endpoint `GET /usuarios`, consulta a tabela `usuario` no PostgreSQL e devolve os dados em formato JSON.
 
+Vou seguir o padrão REST, sem estado, em camadas.
+
 ## Objetivo
 
 Este projeto implementa uma API simples com separação por camadas:
