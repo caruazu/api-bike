@@ -1,42 +1,35 @@
-# api-bike
+# api-legado
 
-API Java para consulta de usuários, construída com **Jersey + tomcat** na camada HTTP e **Hibernate** na camada de persistência.
+API Java simples para estudo de uma stack legada baseada em **Java 8**, **Jersey (JAX-RS)**, **Hibernate ORM** e **Tomcat**.
 
-O projeto expõe o endpoint `GET /usuarios`, consulta a tabela `usuario` no PostgreSQL e devolve os dados em formato JSON.
+O projeto expõe endpoints HTTP para listar e criar usuários persistidos em PostgreSQL. A aplicação monoítica está organizada em uma separação enxuta entre camada HTTP, mapeamento de DTOs e acesso a dados.
 
-Vou seguir o padrão REST, sem estado, em camadas.
+A estrutura atual do projeto é esta:
 
-## Objetivo
-
-Este projeto implementa uma API simples com separação por camadas:
-
-- **Resource**: recebe a requisição HTTP
-- **Service**: aplica a regra de negócio e transforma os dados
-- **Repository**: acessa o banco via Hibernate
-- **Entity / Response DTO**: representam os dados persistidos e o payload de saída
+- **DTOs**: representam os payloads da API
+- **Resource**: recebe a requisição HTTP e monta a resposta
+- **DAO**: acessa o banco usando Hibernate
+- **Entity**: representa a tabela persistida
+- **Mapper**: converte DTOs de entrada/saída para a entidade e vice-versa
 
 ## Stack
 
-- Java
+- Java 8
 - Maven
-- Jersey (JAX-RS)
-- Tomcat 9
-- Hibernate ORM
+- Jersey 2.x (JAX-RS)
+- Jackson
+- Hibernate 5.x
 - PostgreSQL
-- Jackson para serialização JSON
+- Tomcat 9
+- Lombok
 
 ## Configuração do banco
 
 Arquivo de exemplo:
 
-```properties  
-# src/main/resources/hibernate.properties.example  
-
-db.url=jdbc:postgresql://localhost:5432/bikes  
-db.user=postgres  
-db.password=postgres  
-```  
-
+```properties  # src/main/resources/hibernate.properties.example    
+db.url=jdbc:postgresql://localhost:5432/bikes  db.user=postgres  db.password=postgres    
+```    
 * o banco deve existir antes de subir a aplicação
 * a tabela `usuario` deve estar criada e populada
 
@@ -44,78 +37,54 @@ db.password=postgres
 
 Gerar o WAR:
 
-```bash
-mvn clean package
-```
-
-Saída esperada em `target/`.
-
-Exemplo:
-
-```text
-target/api-bike-1.0-SNAPSHOT.war
-```
+```bash  
+mvn clean package```  
+  
+Saída esperada em `target/`.  
+  
+Exemplo:  
+  
+```text  
+target/api-legado-1.0-SNAPSHOT.war  
+```  
 
 Para deploy manual no Tomcat:
 
-```bash
-cp target/api-bike-1.0-SNAPSHOT.war $CATALINA_HOME/webapps/
-```
-
-Depois suba o Tomcat:
-
-```bash
-$CATALINA_HOME/bin/startup.sh
-```
-
-
-## Endpoint disponível
-
-### Listar usuários
-
-```http  
-GET /usuarios  
-```  
-
-Exemplo de chamada:
-
 ```bash  
-curl http://localhost:8080/api-bike/usuarios
-```  
-
-Exemplo de resposta esperada:
-
-```json
-{  
-  "usuarios": ["Ana", "Bruno", "Carlos"]
-}  
+cp target/api-legado-1.0-SNAPSHOT.war $CATALINA_HOME/webapps/```  
+  
+Depois suba o Tomcat:  
+  
+```bash  
+$CATALINA_HOME/bin/startup.sh  
 ```  
 
 ## Fluxo da requisição
 
-1. `AppConfig` registra os recursos JAX-RS
-2. Uma requisição `GET /usuarios` chega em `UsuarioResource`
-3. `UsuarioResource` chama `UsuarioService`
-4. `UsuarioService` solicita os dados ao `UsuarioRepository`
-5. `UsuarioRepository` abre uma `Session` via `HibernateUtil`
-6. O Hibernate consulta a entidade `Usuario`
-7. O resultado é transformado em `UsuarioResponse`
-8. O Jackson serializa o DTO para JSON na resposta HTTP
+1. A requisição chega em `UsuarioResource`
+2. A `Resource` converte o DTO de entrada usando `UsuarioMapper`
+3. A `Resource` chama `UsuarioDAO`
+4. O `DAO` usa `HibernateUtil` para abrir uma `Session`
+5. O Hibernate persiste ou consulta a entidade `Usuario`
+6. A `Resource` usa `UsuarioMapper` para converter a entidade em DTO de resposta
+7. O Jackson serializa o DTO para JSON
 
 ## Arquitetura
 
 O diagrama abaixo mostra as relações principais entre as classes do projeto.
 
 
-```mermaid
+```mermaid  
 flowchart TB
-    C["AppConfig / Jersey"] --> D["UsuarioResource"]
-    D --> E["UsuarioService"] & I["UsuarioResponse JSON"]
-    E <--> F["UsuarioRepository"]
-    F --> G["HibernateUtil"]
-    G <--> H[("Banco de dados")]
-    I --> A["Cliente HTTP\nGET /usuarios"]
-```
+    A(["Cliente HTTP"]) --> B["UsuarioResource"]
+    B --> C["UsuarioMapper"] & D["UsuarioDAO"]
+    C --> E["DTOs"] & F["Usuario Entity"]
+    D --> F & G["HibernateUtil"]
+    G --> H[("PostgreSQL")]
+
+    style A fill:#757575
+    style H fill:#757575
+```  
 
 ## Responsabilidade de cada classe
 
