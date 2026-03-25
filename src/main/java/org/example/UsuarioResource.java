@@ -16,20 +16,6 @@ public class UsuarioResource {
 
     private UsuarioDAO usuarioDAO = new UsuarioDAO();
 
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<UsuarioDadosDetalhamento> listUsuario(){
-        List<Usuario> usuarios = usuarioDAO.selectAll();
-        List<UsuarioDadosDetalhamento> responseListDTO = new ArrayList<>();
-
-        for(Usuario usuario: usuarios){
-            UsuarioDadosDetalhamento dto = UsuarioMapper.toDetalhamento(usuario);
-            responseListDTO.add(dto);
-        }
-
-        return responseListDTO;
-    }
-
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -43,5 +29,34 @@ public class UsuarioResource {
         return Response.status(Response.Status.CREATED)
                 .entity(responseDTO)
                 .build();
+    }
+
+    @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response ler(@PathParam("id") Long id){
+        Usuario usuario = usuarioDAO.findById(id);
+
+        if (usuario == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("usuário não encontrado").build();
+        }
+
+        UsuarioDadosDetalhamento responseDTO = UsuarioMapper.toDetalhamento(usuario);
+        return Response.ok(responseDTO).build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<UsuarioDadosDetalhamento> listUsuario(){
+        List<Usuario> usuarios = usuarioDAO.selectAll();
+        List<UsuarioDadosDetalhamento> responseListDTO = new ArrayList<>();
+
+        for(Usuario usuario: usuarios){
+            UsuarioDadosDetalhamento dto = UsuarioMapper.toDetalhamento(usuario);
+            responseListDTO.add(dto);
+        }
+
+        return responseListDTO;
     }
 }

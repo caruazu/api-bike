@@ -73,7 +73,6 @@ $CATALINA_HOME/bin/startup.sh
 
 O diagrama abaixo mostra as relações principais entre as classes do projeto.
 
-
 ```mermaid  
 flowchart TB
     A(["Cliente HTTP"]) --> B["UsuarioResource"]
@@ -85,26 +84,3 @@ flowchart TB
     style A fill:#757575
     style H fill:#757575
 ```  
-
-## Responsabilidade de cada classe
-
-### `AppConfig`
-Configura o Jersey, define os pacotes a serem escaneados e registra o suporte a JSON.
-
-### `UsuarioResource`
-Camada HTTP da API. Expõe o endpoint `/usuarios`.
-
-### `UsuarioService`
-Camada de negócio. Orquestra a busca dos usuários e prepara os dados para resposta.
-
-### `UsuarioRepository`
-Camada de acesso a dados. Executa a consulta Hibernate para recuperar os registros da entidade `Usuario`.
-
-### `HibernateUtil`
-Centraliza a criação do `SessionFactory` e o carregamento das propriedades de conexão com o banco.
-
-### `Usuario`
-Entidade JPA/Hibernate mapeada para a tabela `usuario`.
-
-### `UsuarioResponse`
-DTO usado para estruturar a resposta JSON do endpoint.
